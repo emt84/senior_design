@@ -1,10 +1,12 @@
 import RPi.GPIO as GPIO
 from RpiMotorLib import RpiMotorLib
 import time
+from scipy.optimize import root_scalar
+import numpy as np
 
 class stepper:
 
-  def __init__(self, rot_limit, orientation, limit_pin, enable_pin, step_pin, direction_pin):
+  def __init__(self, rot_limit, orientation, limit_pin, enable_pin, step_pin, direction_pin,switch_mode):
 
     self.rot_limit = rot_limit #INT - how many steps the motor can rotate
     self.delay = .01 #FLOAT - time in between steps
@@ -14,6 +16,7 @@ class stepper:
     self.enable_pin = enable_pin #INT - GPIO pin number
     self.limit_pin = limit_pin #INT - GPIO pin number
     self.location = 0 #INT - number of steps from 0
+    self.switch_mode = switch_mode #BOOL - True if limit switch is normally open, False otherwise
 
     self.m = RpiMotorLib.A4988Nema(self.direction_pin, self.step_pin, (21,21,21), "DRV8825") #initialize motor object from lib
     GPIO.setup(self.enable_pin,GPIO.OUT) # set enable pin as output
@@ -48,12 +51,22 @@ class stepper:
         
   #zeroes the location of the motor
   def zero(self):
-    #tighten until not touching switch
-    while(not self.get_limit()):
-      self.mov(1)
-    #open until touching switch
-    while(self.get_limit()):
-      self.mov(-1)
+    #if limit switch normally open
+    if self.switch_mode:
+      #tighten until not touching switch
+      while(not self.get_limit()):
+        self.mov(1)
+      #open until touching switch
+      while(self.get_limit()):
+       self.mov(-1)
+    #if limit switch normally close
+    else:
+      #tighten until touching switch
+      while(self.get_limit()):
+        self.mov(1)
+      #open until not touching switch
+      while(not self.get_limit()):
+       self.mov(-1)
     self.location = 0
   
   #moves to the location *loc(int)*, loc is specified in steps from zero
@@ -71,3 +84,33 @@ class stepper:
     else:
       print("location out of bounds!")
 
+class claw:
+  def __init__(self, stepper, distance, length, x_off, y_off, gear_ratio,r_off):
+    self.stepper = stepper #STEPPER - the stepper object corresponding to the claw
+    self.length = length #INT - length in mm of the plastic sheets
+    self.x_off = x_off #INT - perpendicular offest in mm of the plastic sheet to the axis of rotation
+    self.y_off = y_off #INT - parallel offset in mm of the plastic sheet to the axis of rotation
+    self.distance = distance #INT - distance in mm between axis of rotation
+    self.gear_ratio = gear_ratio #FLOAT - gear ration between stepper motor and axis of rotation
+    self.r_off = r_off #FLOAT - angle in degrees measured from parallel that the sheets can open
+
+  #calculate the angle of the sheets for *width(int)*, width should be in mm
+  def calc_angle(self,width):
+    #governing equation for distance based on angle theta
+    def eqn(theta):
+      return self.distance + 2*(self.x_off*np.cos(theta)-(self.length+self.y_off)*np.cos(np.pi/2-theta)) - width
+    #calculate theta
+    sol = root_scalar(eqn, x0=.5, method='secant')
+    theta = round(sol.root,5)
+    #convert to degrees
+    theta = np.rad2deg(theta)
+    return(theta)
+
+  #sets claw to given *width(int)*, width should be in mm
+  def set_width(width):
+    #find required angle including the offset
+    angle = self.calc_angle(width) + self.r_off
+    #calculate the angle in steps from zero
+    steps = round(self.gear_ratio*angle/1.8)
+    #move the motor to the calculated steps
+    stepper.set_loc(steps)
