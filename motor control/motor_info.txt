@@ -1,0 +1,23 @@
+motor 1
+advised rot max = 120
+orientation = cw
+limit = 3 = 2
+enable = 5 = 3
+step = 7 = 4
+direction = 11 = 17
+
+motor 2 claw
+advised rot max = 120
+orientation = cw
+limit = 8 = 14
+enable = 10 = 15
+step = 12 = 18
+direction = 16 = 23
+
+motor 3
+advised rot max = 120
+orientation = cw
+limit = 15 = 22
+enable = 19 = 10
+step = 21 = 9
+direction = 23 = 11
