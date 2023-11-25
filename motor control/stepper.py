@@ -160,3 +160,9 @@ class whole:
     self.claw.set_width(width)
     self.stiff1.set_stiffness(stiffness)
     self.stiff2.set_stiffness(stiffness)
+
+    #open claw all the way up and set to lowest stiffness
+    def open(self):
+      self.claw.stepper.set_loc(0)
+      self.stiff1.stepper.set_loc(0)
+      self.stiff2.stepper.set_loc(0)

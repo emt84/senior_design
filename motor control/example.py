@@ -20,9 +20,15 @@ c = claw(m2,100,100,4,6,3,20)
 #set claw so tips of sheets are touching
 c.set_width(0)
 
+#2 stiffness objects
 s1 = stiffness(m1)
 s2 = stiffness(m2)
 
+#create whole object
 w = whole(c,s1,s2)
 
+#pick up 30 gram, 30mm wide object with .5 strength
 w.grab_obj(30,30,.5)
+
+#open to max size
+w.open()
