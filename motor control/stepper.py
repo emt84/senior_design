@@ -144,7 +144,7 @@ class whole:
   #width should be in mm
   #weight should be in grams
   #strength varies from 0-1 with 0 being very fragile and 1 being relatively sturdy
-  def grab_obj(width, weight, strength):
+  def grab_obj(self, width, weight, strength):
     #calc force required to pick up object, .1 assumed for coeffecient of friction
     # (sheets typically bend to vertical position so little normal force)
     force = weight/1000 * 9.81 / .1 / 2
