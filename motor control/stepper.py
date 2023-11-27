@@ -56,17 +56,21 @@ class stepper:
       #tighten until not touching switch
       while(not self.get_limit()):
         self.mov(1)
+        print(self.get_limit())
       #open until touching switch
       while(self.get_limit()):
        self.mov(-1)
+       print(self.get_limit())
     #if limit switch normally close
     else:
       #tighten until touching switch
       while(self.get_limit()):
         self.mov(1)
+        print(self.get_limit())
       #open until not touching switch
       while(not self.get_limit()):
        self.mov(-1)
+       print(self.get_limit())
     self.location = 0
   
   #moves to the location *loc(int)*, loc is specified in steps from zero
@@ -100,27 +104,28 @@ class claw:
     def eqn(theta):
       return self.distance + 2*(self.x_off*np.cos(theta)-(self.length+self.y_off)*np.cos(np.pi/2-theta)) - width
     #calculate theta
-    sol = root_scalar(eqn, x0=.5, method='secant')
+    sol = root_scalar(eqn, x0=0.1, x1=0.8, method='secant')
     theta = round(sol.root,5)
     #convert to degrees
     theta = np.rad2deg(theta)
     return(theta)
 
   #sets claw to given *width(int)*, width should be in mm
-  def set_width(width):
+  def set_width(self, width):
     #find required angle including the offset
     angle = self.calc_angle(width) + self.r_off
     #calculate the angle in steps from zero
     steps = round(self.gear_ratio*angle/1.8)
+    print(steps)
     #move the motor to the calculated steps
-    stepper.set_loc(steps)
+    stepper.set_loc(self, steps)
 
 class stiffness:
   def __init__(self, stepper):
     self.stepper = stepper  #STEPPER - the stepper object corresponding to the stiffness control
 
   #calculate the location for *stiff(float)*, stiffness should be in N/mm
-  def calc_loc(stiff):
+  def calc_loc(self, stiff):
     #fitted equation from empirical data
     def eqn(loc):
       return .0001769*loc**2+.0022213*loc+.1423-stiff
@@ -130,7 +135,7 @@ class stiffness:
     return loc
 
   #sets stiffness actuator to given *stiff(float)*, stiffness should be in N/mm
-  def set_stiffness(stiff):
+  def set_stiffness(self, stiff):
     loc = calc_loc(stiff)
     self.stepper.set_loc(loc)
 
