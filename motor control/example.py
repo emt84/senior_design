@@ -2,6 +2,7 @@ from stepper import *
 
 #initialize objects
 m1 = stepper(120,"cw",2,3,4,11,False)
+'''
 m2 = stepper(120,"cw",14,15,18,23,True)
 m3 = stepper(120,"cw",22,10,9,11,False)
 
@@ -32,3 +33,4 @@ w.grab_obj(30,30,.5)
 
 #open to max size
 w.open()
+'''

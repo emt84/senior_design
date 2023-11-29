@@ -81,7 +81,7 @@ class stepper:
       delta = loc - self.location
       #check that it needs to move
       if delta != 0:
-        self.mov(delta)
+        self.mov(int(delta))
         self.location = loc
       else:
         print("already there")
@@ -118,7 +118,7 @@ class claw:
     steps = round(self.gear_ratio*angle/1.8)
     print(steps)
     #move the motor to the calculated steps
-    stepper.set_loc(self, steps)
+    self.stepper.set_loc(steps)
 
 class stiffness:
   def __init__(self, stepper):
@@ -130,13 +130,13 @@ class stiffness:
     def eqn(loc):
       return .0001769*loc**2+.0022213*loc+.1423-stiff
     #calculate location
-    sol = root_scalar(eqn, x0=20, method='secant')
-    loc = round(sol.root,5)
+    sol = root_scalar(eqn, x0=0, x1=70,method='secant')
+    loc = round(sol.root,0)
     return loc
 
   #sets stiffness actuator to given *stiff(float)*, stiffness should be in N/mm
   def set_stiffness(self, stiff):
-    loc = calc_loc(stiff)
+    loc = self.calc_loc(stiff)
     self.stepper.set_loc(loc)
 
 class whole:
@@ -162,9 +162,10 @@ class whole:
     width = width-disp*2-strength*width*.25
 
     #set all parts to respective setttingsß
-    self.claw.set_width(width)
     self.stiff1.set_stiffness(stiffness)
     self.stiff2.set_stiffness(stiffness)
+    self.claw.set_width(width)
+
 
     #open claw all the way up and set to lowest stiffness
     def open(self):
