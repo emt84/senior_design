@@ -3,6 +3,7 @@ from RpiMotorLib import RpiMotorLib
 import time
 from scipy.optimize import root_scalar
 import numpy as np
+from math import *
 
 class stepper:
 
