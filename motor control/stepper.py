@@ -155,21 +155,21 @@ class whole:
   def grab_obj(self, width, weight, strength):
     #calc force required to pick up object, .1 assumed for coeffecient of friction
     # (sheets typically bend to vertical position so little normal force)
-    force = weight/1000 * 9.81 / .1 / 2
-
-    #linear relationship between strength and stifness
-    stiffness = .15+strength*.6
+    force = weight/1000 * 9.81 / .62 / 2
+    curvature = 90*sqrt(strength)
+    #linear relationship between strength and stifnesss
+    stiffness =0.01493523*exp(-0.00218377*weight)*exp(0.0279950285*exp(-0.0038579591*weight)*curvature)
     #calculate displacement based on calculated force and stiffness
     disp = force/stiffness
     #estimate width based on width and strength
-    width = width-(disp*(strength+1))**(4/3)
+    width = width-disp*2
 
     print("calculated stiffness", str(stiffness))
     print("calculated disp", str(disp))
     print("calculated width", str(width))
     #set all parts to respective setttingsß
-    self.stiff1.set_stiffness(stiffness)
-    self.stiff2.set_stiffness(stiffness)
+    self.stiff1.stepper.set_loc(curvature)
+    self.stiff2.stepper.set_loc(curvature)
     self.claw.set_width(width)
 
 
