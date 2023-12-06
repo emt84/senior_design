@@ -1,0 +1,49 @@
+import keyboard
+import time
+
+# Your existing code here...
+
+class ClawControl:
+    def __init__(self, claw, stiffness):
+        self.claw = claw
+        self.stiffness = stiffness
+        self.step_size_claw = 5  # Set your desired step size for claw movement
+        self.step_size_stiffness = 1  # Set your desired step size for stiffness adjustment
+
+    def move_left(self):
+        # Decrease claw width by step_size_claw
+        current_width = self.claw.calc_width()  # Assuming calc_width is implemented in the claw class
+        new_width = max(current_width - self.step_size_claw, 0)
+        self.claw.set_width(new_width)
+
+    def move_right(self):
+        # Increase claw width by step_size_claw
+        current_width = self.claw.calc_width()  # Assuming calc_width is implemented in the claw class
+        new_width = min(current_width + self.step_size_claw, max_width)  # Assuming max_width is defined somewhere
+        self.claw.set_width(new_width)
+
+    def increase_stiffness(self):
+        # Increase stiffness by step_size_stiffness
+        current_stiffness = self.stiffness.get_current_stiffness()  # Assuming get_current_stiffness is implemented in the stiffness class
+        new_stiffness = min(current_stiffness + self.step_size_stiffness, max_stiffness)  # Assuming max_stiffness is defined somewhere
+        self.stiffness.set_stiffness(new_stiffness)
+
+    def decrease_stiffness(self):
+        # Decrease stiffness by step_size_stiffness
+        current_stiffness = self.stiffness.get_current_stiffness()  # Assuming get_current_stiffness is implemented in the stiffness class
+        new_stiffness = max(current_stiffness - self.step_size_stiffness, 0)
+        self.stiffness.set_stiffness(new_stiffness)
+
+# Assuming you have initialized your claw and stiffness objects somewhere before this point
+claw_controller = ClawControl(your_claw_instance, your_stiffness_instance)
+
+while True:
+    if keyboard.is_pressed('left'):
+        claw_controller.move_left()
+    if keyboard.is_pressed('right'):
+        claw_controller.move_right()
+    if keyboard.is_pressed('up'):
+        claw_controller.increase_stiffness()
+    if keyboard.is_pressed('down'):
+        claw_controller.decrease_stiffness()
+    time.sleep(0.1)  # Adjust the sleep duration to control the frequency of checks
